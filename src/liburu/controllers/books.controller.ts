@@ -40,8 +40,12 @@ export class BooksController {
       throw new BadRequestException('file not passed')
     }
 
+    // TODO: remove
+    this.uploads.delete(file.filename)
+
     if (file.mimetype !== PDF_MIMETYPE) {
-      this.uploads.delete(file.filename)
+      // TODO: uncomment
+      // this.uploads.delete(file.filename)
       throw new BadRequestException(`got ${file.mimetype}, but ${PDF_MIMETYPE} expected`)
     }
 

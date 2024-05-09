@@ -1,4 +1,5 @@
 import { Book, SearchFilters } from './models/books.models'
+import { Subjects } from './models/subjects.models'
 
 export interface ReadingService {
   find(filters: SearchFilters): Promise<Book[]>
@@ -22,3 +23,11 @@ export interface UploadsManagerService {
 }
 
 export const UploadsManagerService = Symbol('UploadsManagerService')
+
+export interface SubjectsService {
+  getSubjects(): Promise<Subjects>
+  linkBook(subjectID: number, bookID: string): Promise<void>
+  unlinkBook(subjectID: number, bookID: string): Promise<void>
+}
+
+export const SubjectsService = Symbol('SubjectsService')
