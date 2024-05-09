@@ -3,6 +3,9 @@ import { AppConfig, AppEnv } from './config.models'
 export function getAppConfigFromEnv(): AppConfig {
   return new AppConfig({
     env: new AppEnv(process.env.ENV),
+    server: {
+      port: Number(process.env.PORT),
+    },
     database: {
       host: process.env.DATABASE_HOST,
       port: Number(process.env.DATABASE_PORT),

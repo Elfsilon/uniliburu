@@ -4,7 +4,12 @@ export class AppConfig {
 
 export interface ConfigOptions {
   env: AppEnv
+  server: ServerOptions
   database: DatabaseOptions
+}
+
+export interface ServerOptions {
+  port: number
 }
 
 export interface DatabaseOptions {

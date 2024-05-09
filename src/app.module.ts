@@ -2,13 +2,11 @@ import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigModule } from './config/config.module'
 import { LiburuModule } from './liburu/liburu.module'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { getAppConfigFromEnv } from './config/config.utils'
+import { AppConfig } from './config/config.models'
 
 @Module({})
 export class AppModule {
-  static register(): DynamicModule {
-    const config = getAppConfigFromEnv()
-
+  static register(config: AppConfig): DynamicModule {
     const dbConnectionOptions: TypeOrmModuleOptions = {
       type: 'postgres',
       host: config.options.database.host,
