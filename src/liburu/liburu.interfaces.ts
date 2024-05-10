@@ -1,8 +1,10 @@
+import { ReadStream } from 'fs'
 import { File } from './entities/file.entitiy'
 import { Subjects } from './models/subjects.models'
 
 export interface FileUploadsService {
   find(guid?: string): Promise<File[]>
+  findFile(guid: string): Promise<ReadStream>
   upload(displayName: string, file: Express.Multer.File): Promise<File>
   delete(id: string): Promise<void>
 }

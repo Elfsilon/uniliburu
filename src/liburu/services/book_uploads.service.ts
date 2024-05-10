@@ -3,11 +3,10 @@ import { FileUploadsService } from '../liburu.interfaces'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { File } from '../entities/file.entitiy'
-import { UPLOADS_DIR } from '../liburu.constants'
+import { MIMETYPE_PDF, UPLOADS_DIR } from '../liburu.constants'
+import { ReadStream, createReadStream } from 'fs'
 import * as path from 'path'
 import * as fs from 'fs/promises'
-
-const PDF_MIMETYPE = 'application/pdf'
 
 @Injectable()
 export class BookUploadsService implements FileUploadsService {
@@ -22,8 +21,13 @@ export class BookUploadsService implements FileUploadsService {
     return this.repository.find()
   }
 
+  async findFile(guid: string): Promise<ReadStream> {
+    const file = (await this.find(guid))[0]
+    return this.readFile(file.fileName)
+  }
+
   async upload(displayName: string, file: Express.Multer.File): Promise<File> {
-    if (file.mimetype !== PDF_MIMETYPE) {
+    if (file.mimetype !== MIMETYPE_PDF) {
       this.deleteFile(file.filename)
       throw new BadRequestException(`${file.mimetype} file type is not supported yet`)
     }
@@ -44,7 +48,12 @@ export class BookUploadsService implements FileUploadsService {
     this.deleteFile(found[0].fileName)
   }
 
-  private async deleteFile(filename: string): Promise<void> {
+  private readFile(filename: string): ReadStream {
+    const filepath = path.join(UPLOADS_DIR, filename)
+    return createReadStream(filepath)
+  }
+
+  private deleteFile(filename: string): Promise<void> {
     const filepath = path.join(UPLOADS_DIR, filename)
     return fs.unlink(filepath)
   }

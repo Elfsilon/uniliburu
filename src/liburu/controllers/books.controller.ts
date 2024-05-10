@@ -4,16 +4,18 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Inject,
   Param,
   Post,
   Query,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { FileUploadsService } from '../liburu.interfaces'
-import { UPLOADS_DIR } from '../liburu.constants'
+import { MIMETYPE_PDF, UPLOADS_DIR } from '../liburu.constants'
 import { UploadBookBody } from './books.models'
 
 // TODO: add common exception filter to provide messages for all the error responses
@@ -23,8 +25,8 @@ export class BooksController {
   constructor(@Inject(FileUploadsService) private readonly service: FileUploadsService) {}
 
   @Get()
-  async find(@Query('guid') guid?: string) {
-    const books = await this.service.find(guid)
+  async find() {
+    const books = await this.service.find()
     return { books }
   }
 
@@ -45,8 +47,15 @@ export class BooksController {
     }
   }
 
-  @Delete(':id')
-  async delete(@Param('id') id: string) {
-    await this.service.delete(id)
+  @Get(':guid')
+  @Header('Content-Type', MIMETYPE_PDF)
+  async findFile(@Param('guid') guid: string): Promise<StreamableFile> {
+    const stream = await this.service.findFile(guid)
+    return new StreamableFile(stream)
+  }
+
+  @Delete(':guid')
+  async delete(@Param('guid') guid: string) {
+    await this.service.delete(guid)
   }
 }
