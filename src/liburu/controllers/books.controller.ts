@@ -12,55 +12,41 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { Book, Books, SearchFilters } from '../models/books.models'
-import { ReadingService, UploadsManagerService } from '../liburu.interfaces'
+import { FileUploadsService } from '../liburu.interfaces'
 import { UPLOADS_DIR } from '../liburu.constants'
+import { UploadBookBody } from './books.models'
 
-const PDF_MIMETYPE = 'application/pdf'
-
+// TODO: add common exception filter to provide messages for all the error responses
+// TODO: add helper that automatically checks for null or undefined given fields or whole object
 @Controller('books')
 export class BooksController {
-  constructor(
-    @Inject(ReadingService)
-    private readonly service: ReadingService,
-    @Inject(UploadsManagerService)
-    private readonly uploads: UploadsManagerService,
-  ) {}
+  constructor(@Inject(FileUploadsService) private readonly service: FileUploadsService) {}
 
   @Get()
-  async find(@Query() filters: SearchFilters): Promise<Books> {
-    const books = await this.service.find(filters)
+  async find(@Query('guid') guid?: string) {
+    const books = await this.service.find(guid)
     return { books }
   }
 
   @Post()
   @UseInterceptors(FileInterceptor('file', { dest: UPLOADS_DIR }))
-  async publish(@UploadedFile() file: Express.Multer.File, @Body() body: Book) {
-    if (file === undefined) {
-      throw new BadRequestException('file not passed')
+  async upload(@UploadedFile() file: Express.Multer.File, @Body() body: UploadBookBody) {
+    if (file == null) {
+      throw new BadRequestException('file field is required')
     }
 
-    // TODO: remove
-    this.uploads.delete(file.filename)
-
-    if (file.mimetype !== PDF_MIMETYPE) {
-      // TODO: uncomment
-      // this.uploads.delete(file.filename)
-      throw new BadRequestException(`got ${file.mimetype}, but ${PDF_MIMETYPE} expected`)
+    if (body.displayName == null) {
+      throw new BadRequestException('displayName field is required')
     }
 
-    await this.service.publish(body)
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Book> {
-    return this.service.findByID(id)
+    const uploadedBook = await this.service.upload(body.displayName, file)
+    return {
+      guid: uploadedBook.guid,
+    }
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<void> {
-    // Check if file exists and then try to delete?
-    const filename = await this.service.deleteByID(id)
-    await this.uploads.delete(filename)
+  async delete(@Param('id') id: string) {
+    await this.service.delete(id)
   }
 }

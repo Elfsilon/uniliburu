@@ -3,6 +3,8 @@ import { ConfigModule } from './config/config.module'
 import { LiburuModule } from './liburu/liburu.module'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { AppConfig } from './config/config.models'
+import { File } from './liburu/entities/file.entitiy'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 
 @Module({})
 export class AppModule {
@@ -14,8 +16,9 @@ export class AppModule {
       username: config.options.database.username,
       password: config.options.database.password,
       database: config.options.database.dbname,
-      entities: [],
+      namingStrategy: new SnakeNamingStrategy(),
       synchronize: true,
+      entities: [File],
     }
 
     return {
