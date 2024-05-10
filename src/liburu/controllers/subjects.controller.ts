@@ -1,6 +1,9 @@
-import { Controller, Delete, Get, Inject, Param, Put } from '@nestjs/common'
-import { Subject, Subjects } from '../models/subjects.models'
+import { Body, Controller, Delete, Get, Inject, Param, Post, Put } from '@nestjs/common'
 import { SubjectsService } from '../liburu.interfaces'
+
+class LinkRequestBody {
+  bookId: string
+}
 
 @Controller('subjects')
 export class SubjectsController {
@@ -10,17 +13,29 @@ export class SubjectsController {
   ) {}
 
   @Get()
-  async getSubjects(): Promise<Subjects> {
-    return this.service.getSubjects()
+  async list() {
+    const subjects = await this.service.find()
+    return { subjects }
   }
 
-  @Put(':id/link/:book_id')
-  async linkBook(@Param('id') subjectID: number, @Param('book_id') bookID: string): Promise<void> {
-    return this.service.linkBook(subjectID, bookID)
+  @Post()
+  async create(@Body() body: { title: string }) {
+    const id = await this.service.add(body.title)
+    return { id }
   }
 
-  @Delete(':id/link/:book_id')
-  async unlinkBook(@Param('id') subjectID: number, @Param('book_id') bookID: string): Promise<void> {
-    return this.service.unlinkBook(subjectID, bookID)
+  @Delete(':id')
+  async delete(@Param('id') id: number) {
+    await this.service.delete(id)
+  }
+
+  @Put(':id/link')
+  async linkBook(@Param('id') subjectID: number, @Body() body: LinkRequestBody) {
+    await this.service.linkBook(subjectID, body.bookId)
+  }
+
+  @Delete(':id/link')
+  async unlinkBook(@Param('id') subjectID: number, @Body() body: LinkRequestBody) {
+    await this.service.unlinkBook(subjectID, body.bookId)
   }
 }

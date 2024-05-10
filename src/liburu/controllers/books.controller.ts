@@ -16,7 +16,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { FileUploadsService } from '../liburu.interfaces'
 import { MIMETYPE_PDF, UPLOADS_DIR } from '../liburu.constants'
-import { UploadBookBody } from './books.models'
+
+export class UploadBookBody {
+  displayName: string
+}
 
 // TODO: add common exception filter to provide messages for all the error responses
 // TODO: add helper that automatically checks for null or undefined given fields or whole object
@@ -25,8 +28,8 @@ export class BooksController {
   constructor(@Inject(FileUploadsService) private readonly service: FileUploadsService) {}
 
   @Get()
-  async find() {
-    const books = await this.service.find()
+  async find(@Query('guids') guids: string[]) {
+    const books = await this.service.find(guids)
     return { books }
   }
 

@@ -5,6 +5,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { AppConfig } from './config/config.models'
 import { File } from './liburu/entities/file.entitiy'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
+import { Subject } from './liburu/entities/subject.entity'
 
 @Module({})
 export class AppModule {
@@ -18,7 +19,7 @@ export class AppModule {
       database: config.options.database.dbname,
       namingStrategy: new SnakeNamingStrategy(),
       synchronize: true,
-      entities: [File],
+      entities: [File, Subject],
     }
 
     return {

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { FileUploadsService } from '../liburu.interfaces'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { FindOptionsWhere, Repository } from 'typeorm'
 import { File } from '../entities/file.entitiy'
 import { MIMETYPE_PDF, UPLOADS_DIR } from '../liburu.constants'
 import { ReadStream, createReadStream } from 'fs'
@@ -12,18 +12,24 @@ import * as fs from 'fs/promises'
 export class BookUploadsService implements FileUploadsService {
   constructor(@InjectRepository(File) private readonly repository: Repository<File>) {}
 
-  async find(guid?: string): Promise<File[]> {
-    if (guid) {
-      const book = await this.repository.findOneBy({ guid: guid })
-      return book ? [book] : []
+  async find(guids?: string[]): Promise<File[]> {
+    console.log(`HERE: ${guids}`)
+    if (guids == null) {
+      return this.repository.find()
     }
 
-    return this.repository.find()
+    const whereGuids = guids.map<FindOptionsWhere<File>>((guid) => {
+      return { guid }
+    })
+    return this.repository.find({ where: whereGuids })
   }
 
   async findFile(guid: string): Promise<ReadStream> {
-    const file = (await this.find(guid))[0]
-    return this.readFile(file.fileName)
+    const book = await this.repository.findOneBy({ guid })
+    if (book == null) {
+      throw new BadRequestException(`Book with guid=${guid} not found`)
+    }
+    return this.readFile(book.fileName)
   }
 
   async upload(displayName: string, file: Express.Multer.File): Promise<File> {
@@ -40,12 +46,12 @@ export class BookUploadsService implements FileUploadsService {
   }
 
   async delete(guid: string): Promise<any> {
-    const found = await this.find(guid)
-    if (found.length === 0) {
+    const book = await this.repository.findOneBy({ guid })
+    if (book == null) {
       throw new NotFoundException(`book with guid=${guid} not found`)
     }
     await this.repository.delete(guid)
-    this.deleteFile(found[0].fileName)
+    this.deleteFile(book.fileName)
   }
 
   private readFile(filename: string): ReadStream {
