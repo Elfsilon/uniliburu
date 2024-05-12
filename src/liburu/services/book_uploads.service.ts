@@ -13,7 +13,6 @@ export class BookUploadsService implements FileUploadsService {
   constructor(@InjectRepository(File) private readonly repository: Repository<File>) {}
 
   async find(guids?: string[]): Promise<File[]> {
-    console.log(`HERE: ${guids}`)
     if (guids == null) {
       return this.repository.find()
     }
