@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { SubjectsService } from '../liburu.interfaces'
-import { Repository } from 'typeorm'
+import { QueryFailedError, Repository } from 'typeorm'
 import { Subject } from '../entities/subject.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 
@@ -9,45 +9,54 @@ export class UniversitySubjectsService implements SubjectsService {
   constructor(@InjectRepository(Subject) private readonly repository: Repository<Subject>) {}
 
   async find(): Promise<Subject[]> {
-    return this.repository.find()
+    return this.repository.find({ loadRelationIds: true })
   }
 
   async add(title: string): Promise<number> {
     const subject = new Subject()
     subject.title = title
-    subject.courses = []
-    subject.facultyIds = []
-    subject.fieldIds = []
-    subject.linkedBookIds = []
-    subject.professorIds = []
 
     const added = await this.repository.save(subject)
     return added.id
   }
 
   async delete(id: number): Promise<void> {
-    const sub = await this.repository.findOneBy({ id: id })
-    if (sub == null) {
-      throw new NotFoundException(`subject with id=${id} not found`)
-    }
     await this.repository.delete(id)
   }
 
   async linkBook(subjectID: number, bookID: string): Promise<void> {
-    const sub = await this.repository.findOneBy({ id: subjectID })
-    if (sub == null) {
-      throw new NotFoundException(`subject with id=${subjectID} not found`)
-    }
-    sub.linkedBookIds.push(bookID)
-    this.repository.save(sub)
+    await this.repository.createQueryBuilder().relation(Subject, 'books').of(subjectID).add(bookID)
   }
 
   async unlinkBook(subjectID: number, bookID: string): Promise<void> {
-    const sub = await this.repository.findOneBy({ id: subjectID })
-    if (sub == null) {
-      throw new NotFoundException(`subject with id=${subjectID} not found`)
-    }
-    sub.linkedBookIds = sub.linkedBookIds.filter((id) => id !== bookID)
-    this.repository.save(sub)
+    await this.repository.createQueryBuilder().relation(Subject, 'books').of(subjectID).remove(bookID)
+  }
+
+  async linkField(subjectID: number, fieldID: number): Promise<void> {
+    await this.repository.createQueryBuilder().relation(Subject, 'fields').of(subjectID).add(fieldID)
+  }
+
+  async unlinkField(subjectID: number, fieldID: number): Promise<void> {
+    await this.repository.createQueryBuilder().relation(Subject, 'fields').of(subjectID).remove(fieldID)
+  }
+
+  async linkFaculty(subjectID: number, facultyID: number): Promise<void> {
+    await this.repository.createQueryBuilder().relation(Subject, 'faculties').of(subjectID).add(facultyID)
+  }
+
+  async unlinkFaculty(subjectID: number, facultyID: number): Promise<void> {
+    await this.repository.createQueryBuilder().relation(Subject, 'faculties').of(subjectID).remove(facultyID)
+  }
+
+  async linkCourse(subjectID: number, course: number): Promise<void> {
+    const sub = await this.repository.findOne({ where: { id: subjectID } })
+    sub.courses.push(course)
+    await this.repository.save(sub)
+  }
+
+  async unlinkCourse(subjectID: number, course: number): Promise<void> {
+    const sub = await this.repository.findOne({ where: { id: subjectID } })
+    sub.courses = sub.courses.filter((c) => c != course)
+    await this.repository.save(sub)
   }
 }

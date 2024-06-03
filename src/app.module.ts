@@ -6,11 +6,15 @@ import { AppConfig } from './config/config.models'
 import { File } from './liburu/entities/file.entitiy'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { Subject } from './liburu/entities/subject.entity'
+import { Field } from './liburu/entities/field.entity'
+import { Faculty } from './liburu/entities/faculty.entity'
 
 @Module({})
 export class AppModule {
   static register(config: AppConfig): DynamicModule {
+    console.log(config.options.database)
     const dbConnectionOptions: TypeOrmModuleOptions = {
+      synchronize: true,
       type: 'postgres',
       host: config.options.database.host,
       port: config.options.database.port,
@@ -18,8 +22,7 @@ export class AppModule {
       password: config.options.database.password,
       database: config.options.database.dbname,
       namingStrategy: new SnakeNamingStrategy(),
-      synchronize: true,
-      entities: [File, Subject],
+      entities: [File, Subject, Field, Faculty],
     }
 
     return {

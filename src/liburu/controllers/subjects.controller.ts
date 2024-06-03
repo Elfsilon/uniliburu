@@ -1,8 +1,20 @@
 import { Body, Controller, Delete, Get, Inject, Param, Post, Put } from '@nestjs/common'
 import { SubjectsService } from '../liburu.interfaces'
 
-class LinkRequestBody {
+class LinkCourseRequestBody {
+  course: number
+}
+
+class LinkBookRequestBody {
   bookId: string
+}
+
+class LinkFacultyRequestBody {
+  facultyId: number
+}
+
+class LinkFieldRequestBody {
+  fieldId: number
 }
 
 @Controller('subjects')
@@ -29,13 +41,43 @@ export class SubjectsController {
     await this.service.delete(id)
   }
 
-  @Put(':id/link')
-  async linkBook(@Param('id') subjectID: number, @Body() body: LinkRequestBody) {
+  @Put(':id/link/book')
+  async linkBook(@Param('id') subjectID: number, @Body() body: LinkBookRequestBody) {
     await this.service.linkBook(subjectID, body.bookId)
   }
 
-  @Delete(':id/link')
-  async unlinkBook(@Param('id') subjectID: number, @Body() body: LinkRequestBody) {
+  @Delete(':id/link/book')
+  async unlinkBook(@Param('id') subjectID: number, @Body() body: LinkBookRequestBody) {
     await this.service.unlinkBook(subjectID, body.bookId)
+  }
+
+  @Put(':id/link/course')
+  async linkCourse(@Param('id') subjectID: number, @Body() body: LinkCourseRequestBody) {
+    await this.service.linkCourse(subjectID, body.course)
+  }
+
+  @Delete(':id/link/course')
+  async unlinkCourse(@Param('id') subjectID: number, @Body() body: LinkCourseRequestBody) {
+    await this.service.unlinkCourse(subjectID, body.course)
+  }
+
+  @Put(':id/link/faculty')
+  async linkFaculty(@Param('id') subjectID: number, @Body() body: LinkFacultyRequestBody) {
+    await this.service.linkFaculty(subjectID, body.facultyId)
+  }
+
+  @Delete(':id/link/faculty')
+  async unlinkFaculty(@Param('id') subjectID: number, @Body() body: LinkFacultyRequestBody) {
+    await this.service.unlinkFaculty(subjectID, body.facultyId)
+  }
+
+  @Put(':id/link/field')
+  async linkField(@Param('id') subjectID: number, @Body() body: LinkFieldRequestBody) {
+    await this.service.linkField(subjectID, body.fieldId)
+  }
+
+  @Delete(':id/link/field')
+  async unlinkField(@Param('id') subjectID: number, @Body() body: LinkFieldRequestBody) {
+    await this.service.unlinkField(subjectID, body.fieldId)
   }
 }

@@ -1,6 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Faculty } from './faculty.entity'
+import { Field } from './field.entity'
+import { File } from './file.entitiy'
 
-@Entity()
+@Entity('subjects')
 export class Subject {
   @PrimaryGeneratedColumn()
   id: number
@@ -9,18 +12,17 @@ export class Subject {
   title: string
 
   @Column('int', { array: true, default: [] })
-  facultyIds: number[]
-
-  // Направления
-  @Column('int', { array: true, default: [] })
-  fieldIds: number[]
-
-  @Column('int', { array: true, default: [] })
   courses: number[]
 
-  @Column('int', { array: true, default: [] })
-  professorIds: number[]
+  @ManyToMany(() => Faculty)
+  @JoinTable()
+  faculties: Faculty[]
 
-  @Column('uuid', { array: true, default: [] })
-  linkedBookIds: string[]
+  @ManyToMany(() => Field)
+  @JoinTable()
+  fields: Field[]
+
+  @ManyToMany(() => File)
+  @JoinTable()
+  books: File[]
 }
