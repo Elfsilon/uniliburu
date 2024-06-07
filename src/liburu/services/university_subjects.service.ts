@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { SubjectsService } from '../liburu.interfaces'
-import { QueryFailedError, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { Subject } from '../entities/subject.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 
@@ -38,14 +38,6 @@ export class UniversitySubjectsService implements SubjectsService {
 
   async unlinkField(subjectID: number, fieldID: number): Promise<void> {
     await this.repository.createQueryBuilder().relation(Subject, 'fields').of(subjectID).remove(fieldID)
-  }
-
-  async linkFaculty(subjectID: number, facultyID: number): Promise<void> {
-    await this.repository.createQueryBuilder().relation(Subject, 'faculties').of(subjectID).add(facultyID)
-  }
-
-  async unlinkFaculty(subjectID: number, facultyID: number): Promise<void> {
-    await this.repository.createQueryBuilder().relation(Subject, 'faculties').of(subjectID).remove(facultyID)
   }
 
   async linkCourse(subjectID: number, course: number): Promise<void> {

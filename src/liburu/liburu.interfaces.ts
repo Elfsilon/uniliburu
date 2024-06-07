@@ -24,9 +24,6 @@ export interface SubjectsService {
   linkField(subjectID: number, fieldID: number): Promise<void>
   unlinkField(subjectID: number, fieldID: number): Promise<void>
 
-  linkFaculty(subjectID: number, facultyID: number): Promise<void>
-  unlinkFaculty(subjectID: number, facultyID: number): Promise<void>
-
   linkCourse(subjectID: number, course: number): Promise<void>
   unlinkCourse(subjectID: number, course: number): Promise<void>
 }
@@ -34,8 +31,8 @@ export interface SubjectsService {
 export const SubjectsService = Symbol('SubjectsService')
 
 export interface FieldsService {
-  find(): Promise<Field[]>
-  add(title: string): Promise<number>
+  find(facultyID: number): Promise<Field[]>
+  add(title: string, facultyID: number): Promise<number>
   delete(id: number): Promise<void>
 }
 

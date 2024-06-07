@@ -9,10 +9,6 @@ class LinkBookRequestBody {
   bookId: string
 }
 
-class LinkFacultyRequestBody {
-  facultyId: number
-}
-
 class LinkFieldRequestBody {
   fieldId: number
 }
@@ -59,16 +55,6 @@ export class SubjectsController {
   @Delete(':id/link/course')
   async unlinkCourse(@Param('id') subjectID: number, @Body() body: LinkCourseRequestBody) {
     await this.service.unlinkCourse(subjectID, body.course)
-  }
-
-  @Put(':id/link/faculty')
-  async linkFaculty(@Param('id') subjectID: number, @Body() body: LinkFacultyRequestBody) {
-    await this.service.linkFaculty(subjectID, body.facultyId)
-  }
-
-  @Delete(':id/link/faculty')
-  async unlinkFaculty(@Param('id') subjectID: number, @Body() body: LinkFacultyRequestBody) {
-    await this.service.unlinkFaculty(subjectID, body.facultyId)
   }
 
   @Put(':id/link/field')

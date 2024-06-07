@@ -1,5 +1,9 @@
-import { Controller, Inject, Get, Post, Body, Delete, Param } from '@nestjs/common'
+import { Controller, Inject, Get, Post, Body, Delete, Param, Put, Query } from '@nestjs/common'
 import { FieldsService } from '../liburu.interfaces'
+
+class LinkFacultyRequestBody {
+  facultyId: number
+}
 
 @Controller('fields')
 export class FieldsController {
@@ -9,14 +13,14 @@ export class FieldsController {
   ) {}
 
   @Get()
-  async list() {
-    const fields = await this.service.find()
+  async list(@Query('facultyID') facultyID: number) {
+    const fields = await this.service.find(facultyID)
     return { fields }
   }
 
   @Post()
-  async create(@Body() body: { title: string }) {
-    const id = await this.service.add(body.title)
+  async create(@Body() body: { title: string; facultyId: number }) {
+    const id = await this.service.add(body.title, body.facultyId)
     return { id }
   }
 

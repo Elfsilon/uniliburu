@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinTable, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Field } from './field.entity'
 
 @Entity('faculties')
 export class Faculty {
@@ -7,4 +8,8 @@ export class Faculty {
 
   @Column()
   title: string
+
+  @OneToMany(() => Field, (f) => f.faculty)
+  @JoinTable({ name: 'id' })
+  fields: Field[]
 }

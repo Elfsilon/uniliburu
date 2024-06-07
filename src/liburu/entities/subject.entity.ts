@@ -14,10 +14,6 @@ export class Subject {
   @Column('int', { array: true, default: [] })
   courses: number[]
 
-  @ManyToMany(() => Faculty)
-  @JoinTable()
-  faculties: Faculty[]
-
   @ManyToMany(() => Field)
   @JoinTable()
   fields: Field[]

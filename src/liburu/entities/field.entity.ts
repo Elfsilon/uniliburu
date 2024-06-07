@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Faculty } from './faculty.entity'
 
 @Entity('fields')
 export class Field {
@@ -7,4 +8,7 @@ export class Field {
 
   @Column()
   title: string
+
+  @ManyToOne(() => Faculty, (f) => f.fields, { onDelete: 'CASCADE' })
+  faculty: Faculty
 }
